@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Мої збережені статті{% endblock %}
+
+{% block content %}
+<h2>Мої збережені статті</h2>
+
+<ul>
+    {% for bm in bookmarks %}
+        <li>
+            <a href="{% url 'news:article_detail' slug=bm.article.slug %}">
+                {{ bm.article.title }}
+            </a>
+            <small>(збережено: {{ bm.created_at|date:"d.m.Y H:i" }})</small>
+        </li>
+    {% empty %}
+        <li>У вас ще немає збережених статей.</li>
+    {% endfor %}
+</ul>
+{% endblock %}

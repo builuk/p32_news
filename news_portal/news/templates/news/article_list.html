@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Новини міста{% endblock %}
+
+{% block content %}
+<h2>Новини міста</h2>
+
+<form method="get">
+    <input type="text" name="q" placeholder="Пошук..." value="{{ search_query }}">
+    <button type="submit">Шукати</button>
+
+    <label>Сортування:</label>
+    <select name="order" onchange="this.form.submit()">
+        <option value="date" {% if current_order == 'date' %}selected{% endif %}>За датою</option>
+        <option value="author" {% if current_order == 'author' %}selected{% endif %}>За автором</option>
+        <option value="tag" {% if current_order == 'tag' %}selected{% endif %}>За тегами</option>
+    </select>
+</form>
+
+<p>Теги:
+    {% for tag in tags %}
+        <a href="?tag={{ tag.slug }}">{{ tag.name }}</a>
+    {% empty %}
+        (поки немає тегів)
+    {% endfor %}
+</p>
+
+<ul>
+    {% for article in articles %}
+        <li>
+            <h3>
+                <a href="{% url 'news:article_detail' slug=article.slug %}">
+                    {{ article.title }}
+                </a>
+            </h3>
+            <p>
+                Автор: {{ article.author }} |
+                Дата: {{ article.created_at|date:"d.m.Y H:i" }}
+            </p>
+            <p>
+                Теги:
+                {% for t in article.tags.all %}
+                    <span>#{{ t.name }}</span>
+                {% empty %}
+                    немає тегів
+                {% endfor %}
+            </p>
+        </li>
+    {% empty %}
+        <li>Статей не знайдено.</li>
+    {% endfor %}
+</ul>
+
+<div>
+    {% if is_paginated %}
+        <div>
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}">Назад</a>
+            {% endif %}
+
+            Сторінка {{ page_obj.number }} з {{ page_obj.paginator.num_pages }}
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}">Вперед</a>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}{{ article.title }}{% endblock %}
+
+{% block content %}
+<article>
+    <h2>{{ article.title }}</h2>
+    <p>
+        Автор: {{ article.author }} |
+        Опубліковано: {{ article.created_at|date:"d.m.Y H:i" }}
+    </p>
+
+    <p>
+        Теги:
+        {% for t in article.tags.all %}
+            <span>#{{ t.name }}</span>
+        {% empty %}
+            немає тегів
+        {% endfor %}
+    </p>
+
+    <hr>
+
+    <div>
+        {{ article.body|linebreaks }}
+    </div>
+
+    {% if user.is_authenticated %}
+        <form method="post" action="{% url 'news:toggle_bookmark' slug=article.slug %}">
+            {% csrf_token %}
+            {% if is_bookmarked %}
+                <button type="submit">Прибрати із збережених</button>
+            {% else %}
+                <button type="submit">Зберегти для читання</button>
+            {% endif %}
+        </form>
+    {% else %}
+        <p><a href="{% url 'news:login' %}?next={{ request.path }}">Увійдіть</a>, щоб зберігати статті.</p>
+    {% endif %}
+</article>
+
+<hr>
+
+<section>
+    <h3>Коментарі</h3>
+
+    {% for comment in comments %}
+        <div>
+            <strong>{{ comment.user }}</strong>
+            <em>{{ comment.created_at|date:"d.m.Y H:i" }}</em>
+            <p>{{ comment.body|linebreaks }}</p>
+        </div>
+        <hr>
+    {% empty %}
+        <p>Поки що немає коментарів.</p>
+    {% endfor %}
+</section>
+
+{% if user.is_authenticated %}
+    <section>
+        <h3>Залишити коментар</h3>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Додати</button>
+        </form>
+    </section>
+{% else %}
+    <p><a href="{% url 'news:login' %}?next={{ request.path }}">Увійдіть</a>, щоб залишати коментарі.</p>
+{% endif %}
+
+{% endblock %}

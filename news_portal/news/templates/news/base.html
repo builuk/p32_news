@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Портал новин міста{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
+</head>
+<body>
+<header>
+    <h1><a href="{% url 'news:article_list' %}">Портал новин міста</a></h1>
+
+    <nav>
+        {% if user.is_authenticated %}
+            Вітаємо, {{ user.username }} |
+            <a href="{% url 'news:bookmark_list' %}">Мої збережені</a> |
+            <a href="{% url 'news:logout' %}">Вихід</a>
+        {% else %}
+            <a href="{% url 'news:login' %}">Вхід</a> |
+            <a href="{% url 'news:register' %}">Реєстрація</a>
+        {% endif %}
+    </nav>
+</header>
+
+<main>
+    {% if messages %}
+        <ul>
+            {% for m in messages %}
+                <li>{{ m }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    {% block content %}{% endblock %}
+</main>
+
+<footer>
+    <p>&copy; {{ now|default:"2025" }} Міський портал новин</p>
+</footer>
+</body>
+</html>

@@ -7,6 +7,8 @@ from django.urls import reverse_lazy
 from django.views.generic import CreateView
 from .forms import RegisterForm, CommentForm
 from django.shortcuts import get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 User = get_user_model()
 
@@ -120,3 +122,22 @@ class RegisterView(CreateView):
     form_class = RegisterForm
     template_name = 'news/register.html'
     success_url = reverse_lazy('news:login')
+
+class BookmarkListView(LoginRequiredMixin, ListView):
+    model = Bookmark
+    template_name = 'news/bookmark_list.html'
+    context_object_name = 'bookmarks'
+
+    def get_queryset(self):
+        return Bookmark.objects.filter(user=self.request.user).select_related('article')
+
+@login_required
+def toggle_bookmark(request, slug):
+    article = get_object_or_404(Article, slug=slug)
+    bookmark, created = Bookmark.objects.get_or_create(
+        user=request.user,
+        article=article
+    )
+    if not created:
+        bookmark.delete()
+    return redirect('news:article_detail', slug=slug)
