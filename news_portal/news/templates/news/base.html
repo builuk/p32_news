@@ -1,9 +1,12 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}Портал новин міста{% endblock %}</title>
     <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
+    <link rel="stylesheet" href="{% static 'news/css/style.css' %}">
 </head>
 <body>
 <header>
@@ -12,7 +15,7 @@
     <nav>
         {% if user.is_authenticated %}
             Вітаємо, {{ user.username }} |
-            <a href="{% url 'news:bookmark_list' %}">Мої збережені</a> |
+            <a id="some" href="{% url 'news:bookmark_list' %}">Мої збережені</a> |
             <a href="{% url 'news:logout' %}">Вихід</a>
         {% else %}
             <a href="{% url 'news:login' %}">Вхід</a> |
