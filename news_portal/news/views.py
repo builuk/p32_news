@@ -116,6 +116,7 @@ class LoginView(DjangoLoginView):
 
 class LogoutView(DjangoLogoutView):
     next_page = reverse_lazy('news:article_list')
+    http_method_names = ['get', 'post', 'head', 'options']
 
 
 class RegisterView(CreateView):
