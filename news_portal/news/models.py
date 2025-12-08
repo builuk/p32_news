@@ -26,3 +26,25 @@ class Article(models.Model):
 
     def __str__(self):
         return self.title
+
+class Comment(models.Model):
+    article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name="comments")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="comments")
+    body = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_approved = models.BooleanField(default=True)
+    class Meta:
+        ordering = ["-created_at"]
+    def __str__(self):
+        return f"Comment by {self.user} on {self.article}"
+
+class Bookmark(models.Model):
+    article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name="bookmarks")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="bookmarks")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ["article", "user"]
+
+    def __str__(self):
+        return f"Bookmark by {self.user} on {self.article}"
