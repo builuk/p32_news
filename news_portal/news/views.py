@@ -1,8 +1,12 @@
-# news/views.py
 from django.views.generic import ListView, DetailView
 from django.contrib.auth import get_user_model
 from django.db.models import Q
 from .models import Article, Tag, Bookmark
+from django.contrib.auth.views import LoginView as DjangoLoginView, LogoutView as DjangoLogoutView
+from django.urls import reverse_lazy
+from django.views.generic import CreateView
+from .forms import RegisterForm, CommentForm
+from django.shortcuts import get_object_or_404, redirect
 
 User = get_user_model()
 
@@ -53,11 +57,6 @@ class ArticleListView(ListView):
         ctx['search_query'] = self.request.GET.get('q', '')
         return ctx
 
-from django.shortcuts import get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required
-from django.utils.decorators import method_decorator
-from .forms import CommentForm
-
 
 class ArticleDetailView(DetailView):
     model = Article
@@ -107,3 +106,17 @@ class ArticleDetailView(DetailView):
         ctx = self.get_context_data()
         ctx['form'] = form
         return self.render_to_response(ctx)
+
+
+class LoginView(DjangoLoginView):
+    template_name = 'news/login.html'
+
+
+class LogoutView(DjangoLogoutView):
+    next_page = reverse_lazy('news:article_list')
+
+
+class RegisterView(CreateView):
+    form_class = RegisterForm
+    template_name = 'news/register.html'
+    success_url = reverse_lazy('news:login')
