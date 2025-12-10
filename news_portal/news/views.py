@@ -5,10 +5,12 @@ from .models import Article, Tag, Bookmark
 from django.contrib.auth.views import LoginView as DjangoLoginView, LogoutView as DjangoLogoutView
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
-from .forms import RegisterForm, CommentForm
-from django.shortcuts import get_object_or_404, redirect
+from .forms import RegisterForm, CommentForm, WeatherForm
+from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib import messages
+import requests
 
 User = get_user_model()
 
@@ -142,3 +144,52 @@ def toggle_bookmark(request, slug):
     if not created:
         bookmark.delete()
     return redirect('news:article_detail', slug=slug)
+
+
+def weather_view(request):
+    API_KEY = '131ba58c898e27a8ea373e96ce0cc470'
+    BASE_URL = 'https://api.openweathermap.org/data/2.5/weather'
+    
+    weather_data = None
+    error = None
+    
+    if request.method == 'POST':
+        form = WeatherForm(request.POST)
+        if form.is_valid():
+            city = form.cleaned_data['city']
+            try:
+                params = {
+                    'q': city,
+                    'appid': API_KEY,
+                    'units': 'metric',
+                    'lang': 'uk'
+                }
+                response = requests.get(BASE_URL, params=params, timeout=10)
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    weather_data = {
+                        'city': data['name'],
+                        'country': data['sys']['country'],
+                        'temperature': round(data['main']['temp']),
+                        'feels_like': round(data['main']['feels_like']),
+                        'description': data['weather'][0]['description'].capitalize(),
+                        'humidity': data['main']['humidity'],
+                        'pressure': data['main']['pressure'],
+                        'wind_speed': data['wind']['speed'],
+                        'icon': data['weather'][0]['icon'],
+                    }
+                elif response.status_code == 404:
+                    error = f'Місто "{city}" не знайдено. Перевірте правильність написання.'
+                else:
+                    error = 'Помилка при отриманні даних про погоду. Спробуйте пізніше.'
+            except requests.exceptions.RequestException as e:
+                error = 'Помилка з\'єднання з сервісом погоди. Спробуйте пізніше.'
+    else:
+        form = WeatherForm()
+    
+    return render(request, 'news/weather.html', {
+        'form': form,
+        'weather_data': weather_data,
+        'error': error
+    })

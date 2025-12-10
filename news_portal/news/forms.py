@@ -20,3 +20,14 @@ class RegisterForm(UserCreationForm):
     class Meta:
         model = User
         fields = ('username', 'email')
+
+
+class WeatherForm(forms.Form):
+    city = forms.CharField(
+        max_length=100,
+        label='Місто',
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Введіть назву міста',
+            'class': 'form-control'
+        })
+    )
