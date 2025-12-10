@@ -11,7 +11,7 @@ class TagAdmin(admin.ModelAdmin):
 
 @admin.register(Article)
 class ArticleAdmin(admin.ModelAdmin):
-    list_display = ('title', 'author', 'created_at', 'is_public')
+    list_display = ('title', 'author', 'created_at', 'is_public', 'image')
     list_filter = ('is_public', 'created_at', 'author', 'tags')
     search_fields = ('title', 'body')
     prepopulated_fields = {'slug': ('title',)}  # slug з title
