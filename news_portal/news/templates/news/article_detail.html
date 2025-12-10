@@ -21,6 +21,12 @@
 
     <hr>
 
+    {% if article.image %}
+        <div>
+            <img src="{{ article.image.url }}" alt="{{ article.title }}" style="max-width: 100%; height: auto;">
+        </div>
+    {% endif %}
+
     <div>
         {{ article.body|linebreaks }}
     </div>
